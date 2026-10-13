@@ -1,0 +1,17 @@
+{% extends "base.html" %}
+
+{% block title %}403 Forbidden - EcoSort AI{% endblock %}
+
+{% block content %}
+<div class="card" style="text-align: center; max-width: 500px; margin: 40px auto; padding: 40px 20px;">
+    <div style="font-size: 3rem; margin-bottom: 10px;">🚫</div>
+    <h1 style="font-size: 1.8rem; color: #dc2626; margin-bottom: 10px;">403 - Access Forbidden</h1>
+    <p style="color: var(--text-muted); margin-bottom: 24px;">
+        You do not have administrative privileges to access this page. This incident has been logged.
+    </p>
+    <div>
+        <a href="{{ url_for('dashboard') }}" class="btn btn-primary">Return to Dashboard</a>
+        <a href="{{ url_for('home') }}" class="btn btn-secondary">Home</a>
+    </div>
+</div>
+{% endblock %}

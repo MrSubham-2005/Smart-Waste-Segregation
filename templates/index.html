@@ -1,0 +1,158 @@
+{% extends "base.html" %}
+
+{% block title %}EcoSort AI - Smart Waste Segregation System{% endblock %}
+
+{% block content %}
+<!-- Hero Section -->
+<div class="card" style="text-align: center; padding: 48px 24px;">
+    <h1 style="font-size: 2.3rem; margin-bottom: 10px; color: var(--text-dark);">EcoSort AI</h1>
+    <h2 style="font-size: 1.25rem; font-weight: 500; color: var(--primary); margin-bottom: 14px;">Smart Waste Segregation System</h2>
+    
+    <p style="font-size: 1.15rem; color: #4b5563; max-width: 680px; margin: 0 auto 28px auto; line-height: 1.6;">
+        "Identify your waste. Choose the right disposal category. Protect the environment."
+    </p>
+
+    <div style="display: flex; gap: 14px; justify-content: center; flex-wrap: wrap;">
+        <a href="{{ url_for('analyze') }}" class="btn btn-primary" style="font-size: 1rem; padding: 12px 24px;">
+            🔍 Analyze Waste
+        </a>
+        <a href="{{ url_for('awareness') }}" class="btn btn-secondary" style="font-size: 1rem; padding: 12px 24px;">
+            📚 Learn About Waste Segregation
+        </a>
+    </div>
+</div>
+
+<!-- 4 Core Categories Section (2x2 Grid) -->
+<div class="card">
+    <div class="card-header">
+        <h2>Core Waste Categories</h2>
+        <p style="color: var(--text-muted); font-size: 0.9rem; margin: 0;">
+            Source segregation ensures materials are recycled and processed according to municipal guidelines:
+        </p>
+    </div>
+    <div class="category-grid-2x2">
+        <!-- Row 1: 1. Wet Waste -->
+        <div class="category-card-item" style="border-left: 5px solid #28a745; background: #f0fdf4;">
+            <div>
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
+                    <h3 style="color: #15803d; font-size: 1.15rem; margin: 0;">1. Wet Waste</h3>
+                    <span style="font-size: 0.75rem; background: #dcfce7; color: #166534; padding: 2px 8px; border-radius: 10px; font-weight: 600;">Green Bin</span>
+                </div>
+                <p style="font-size: 0.88rem; color: #374151; margin-bottom: 10px; line-height: 1.5;">
+                    Biodegradable kitchen and garden waste that decomposes naturally into nutrient-rich compost.
+                </p>
+            </div>
+            <div style="font-size: 0.8rem; color: #6b7280; border-top: 1px dashed #bbf7d0; padding-top: 8px;">
+                <strong>Examples:</strong> Fruit peels, leftover food, tea leaves.
+            </div>
+        </div>
+
+        <!-- Row 1: 2. Dry Waste -->
+        <div class="category-card-item" style="border-left: 5px solid #007bff; background: #eff6ff;">
+            <div>
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
+                    <h3 style="color: #1d4ed8; font-size: 1.15rem; margin: 0;">2. Dry Waste</h3>
+                    <span style="font-size: 0.75rem; background: #dbeafe; color: #1e40af; padding: 2px 8px; border-radius: 10px; font-weight: 600;">Blue Bin</span>
+                </div>
+                <p style="font-size: 0.88rem; color: #374151; margin-bottom: 10px; line-height: 1.5;">
+                    Non-biodegradable, non-recyclable solid waste that cannot be reprocessed mechanically.
+                </p>
+            </div>
+            <div style="font-size: 0.8rem; color: #6b7280; border-top: 1px dashed #bfdbfe; padding-top: 8px;">
+                <strong>Examples:</strong> Soiled paper, wrappers, cardboard.
+            </div>
+        </div>
+
+        <!-- Row 2: 3. Recyclable Waste -->
+        <div class="category-card-item" style="border-left: 5px solid #ffc107; background: #fffbeb;">
+            <div>
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
+                    <h3 style="color: #b45309; font-size: 1.15rem; margin: 0;">3. Recyclable Waste</h3>
+                    <span style="font-size: 0.75rem; background: #fef3c7; color: #92400e; padding: 2px 8px; border-radius: 10px; font-weight: 600;">Yellow Bin</span>
+                </div>
+                <p style="font-size: 0.88rem; color: #374151; margin-bottom: 10px; line-height: 1.5;">
+                    Clean materials that can be reprocessed into secondary raw materials for new goods.
+                </p>
+            </div>
+            <div style="font-size: 0.8rem; color: #6b7280; border-top: 1px dashed #fde68a; padding-top: 8px;">
+                <strong>Examples:</strong> PET plastic bottles, drink cans, glasses.
+            </div>
+        </div>
+
+        <!-- Row 2: 4. E-Waste -->
+        <div class="category-card-item" style="border-left: 5px solid #dc3545; background: #fef2f2;">
+            <div>
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
+                    <h3 style="color: #b91c1c; font-size: 1.15rem; margin: 0;">4. E-Waste</h3>
+                    <span style="font-size: 0.75rem; background: #fee2e2; color: #991b1b; padding: 2px 8px; border-radius: 10px; font-weight: 600;">Red Bin</span>
+                </div>
+                <p style="font-size: 0.88rem; color: #374151; margin-bottom: 10px; line-height: 1.5;">
+                    Hazardous electronic products containing heavy metals requiring specialized recovery.
+                </p>
+            </div>
+            <div style="font-size: 0.8rem; color: #6b7280; border-top: 1px dashed #fecaca; padding-top: 8px;">
+                <strong>Examples:</strong> Phone chargers, USB cables, batteries, PCBs.
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- How the System Works Section -->
+<div class="card">
+    <div class="card-header">
+        <h2>How the System Works</h2>
+        <p style="color: var(--text-muted); font-size: 0.9rem; margin: 0;">
+            End-to-end intelligent waste identification and disposal recommendations in four simple steps:
+        </p>
+    </div>
+    <div class="system-steps-grid">
+        <div class="step-card">
+            <div class="step-number">1</div>
+            <div class="step-title">Upload Image</div>
+            <div class="step-desc">Select or drag and drop an image of waste.</div>
+        </div>
+        <div class="step-card">
+            <div class="step-number">2</div>
+            <div class="step-title">AI Analysis</div>
+            <div class="step-desc">The trained MobileNetV2 model analyzes the image.</div>
+        </div>
+        <div class="step-card">
+            <div class="step-number">3</div>
+            <div class="step-title">Waste Classification</div>
+            <div class="step-desc">The system identifies the most likely waste category.</div>
+        </div>
+        <div class="step-card">
+            <div class="step-number">4</div>
+            <div class="step-title">Bin & Disposal Guidance</div>
+            <div class="step-desc">The result provides the recommended category and appropriate disposal/bin guidance.</div>
+        </div>
+    </div>
+</div>
+
+<!-- How EcoSort AI Helps Section -->
+<div class="card" style="margin-bottom: 0;">
+    <div class="card-header">
+        <h3 style="font-size: 1.35rem; margin-bottom: 6px; color: var(--text-dark);">How EcoSort AI Helps</h3>
+        <p style="font-size: 0.95rem; color: #4b5563; margin: 0; line-height: 1.5;">
+            EcoSort AI uses image-based AI classification to help users identify common types of waste and understand the appropriate waste category and disposal guidance.
+        </p>
+    </div>
+    <div class="features-grid-3">
+        <div class="feature-card">
+            <div class="feature-icon">🔍</div>
+            <div class="feature-title">AI-Powered Identification</div>
+            <div class="feature-desc">Upload a waste image and let the trained AI model identify its waste category.</div>
+        </div>
+        <div class="feature-card">
+            <div class="feature-icon">♻️</div>
+            <div class="feature-title">Smart Waste Guidance</div>
+            <div class="feature-desc">Get the recommended waste category and bin/disposal guidance based on the prediction.</div>
+        </div>
+        <div class="feature-card">
+            <div class="feature-icon">📊</div>
+            <div class="feature-title">Prediction History</div>
+            <div class="feature-desc">Logged-in users can review their previous waste analysis results and feedback.</div>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,163 @@
+{% extends "base.html" %}
+
+{% block title %}User Dashboard - EcoSort AI{% endblock %}
+
+{% block content %}
+<!-- Welcome & Quick Action Card -->
+<div class="card">
+    <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 16px;">
+        <div>
+            <h1 style="font-size: 1.8rem; margin: 0 0 6px 0; color: var(--text-dark);">
+                Welcome back, {{ session.get('name') }}!
+            </h1>
+            <p style="color: var(--text-muted); margin: 0; font-size: 0.95rem;">
+                Your personal waste segregation hub.
+            </p>
+        </div>
+        <div>
+            <a href="{{ url_for('analyze') }}" class="btn btn-primary" style="padding: 12px 22px; font-size: 1rem;">
+                🔍 Analyze Waste Now
+            </a>
+        </div>
+    </div>
+</div>
+
+<!-- Category Breakdown & Core Metrics Grid -->
+<div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(170px, 1fr)); gap: 14px; margin-bottom: 24px;">
+    <!-- Total Predictions -->
+    <div class="card" style="margin-bottom: 0; text-align: center; border-top: 4px solid var(--primary);">
+        <div style="font-size: 0.78rem; color: var(--text-muted); text-transform: uppercase; font-weight: 600;">Total Analyses</div>
+        <div style="font-size: 2rem; font-weight: 700; color: var(--primary); margin: 4px 0;">
+            {{ user_scans_count }}
+        </div>
+        <div style="font-size: 0.75rem; color: var(--text-muted);">Recorded Items</div>
+    </div>
+
+    <!-- Wet Waste Count -->
+    <div class="card" style="margin-bottom: 0; text-align: center; border-top: 4px solid #28a745;">
+        <div style="font-size: 0.78rem; color: #166534; text-transform: uppercase; font-weight: 600;">Wet Waste</div>
+        <div style="font-size: 1.8rem; font-weight: 700; color: #28a745; margin: 4px 0;">
+            {{ category_counts['Wet Waste'] }}
+        </div>
+        <div style="font-size: 0.75rem; color: var(--text-muted);">Green Bin (Organic)</div>
+    </div>
+
+    <!-- Dry Waste Count -->
+    <div class="card" style="margin-bottom: 0; text-align: center; border-top: 4px solid #007bff;">
+        <div style="font-size: 0.78rem; color: #1e40af; text-transform: uppercase; font-weight: 600;">Dry Waste</div>
+        <div style="font-size: 1.8rem; font-weight: 700; color: #007bff; margin: 4px 0;">
+            {{ category_counts['Dry Waste'] }}
+        </div>
+        <div style="font-size: 0.75rem; color: var(--text-muted);">Blue Bin (General)</div>
+    </div>
+
+    <!-- Recyclable Waste Count -->
+    <div class="card" style="margin-bottom: 0; text-align: center; border-top: 4px solid #ffc107;">
+        <div style="font-size: 0.78rem; color: #92400e; text-transform: uppercase; font-weight: 600;">Recyclable</div>
+        <div style="font-size: 1.8rem; font-weight: 700; color: #d97706; margin: 4px 0;">
+            {{ category_counts['Recyclable Waste'] }}
+        </div>
+        <div style="font-size: 0.75rem; color: var(--text-muted);">Yellow Bin (Clean Recyclables)</div>
+    </div>
+
+    <!-- E-Waste Count -->
+    <div class="card" style="margin-bottom: 0; text-align: center; border-top: 4px solid #dc3545;">
+        <div style="font-size: 0.78rem; color: #991b1b; text-transform: uppercase; font-weight: 600;">E-Waste</div>
+        <div style="font-size: 1.8rem; font-weight: 700; color: #dc3545; margin: 4px 0;">
+            {{ category_counts['E-Waste'] }}
+        </div>
+        <div style="font-size: 0.75rem; color: var(--text-muted);">Red Bin (Specialized E-Waste Bin)</div>
+    </div>
+</div>
+
+<!-- Category Distribution Chart / Progress Bars (Rendered ONLY from real database values) -->
+<div class="card">
+    <div class="card-header">
+        <h2 style="font-size: 1.25rem; margin: 0 0 4px 0;">Personal Waste Category Distribution</h2>
+        <p style="font-size: 0.85rem; color: var(--text-muted); margin: 0;">
+            Proportion of items sorted across categories based on actual scanned records:
+        </p>
+    </div>
+
+    {% if user_scans_count > 0 %}
+        <div style="margin-top: 16px;">
+            {% for cat_name, cat_count in category_counts.items() %}
+                {% set pct = ((cat_count / user_scans_count) * 100)|round(1) if user_scans_count > 0 else 0 %}
+                <div class="dist-bar-wrapper">
+                    <div class="dist-bar-header">
+                        <span>{{ cat_name }}</span>
+                        <span>{{ cat_count }} items ({{ pct }}%)</span>
+                    </div>
+                    <div class="dist-bar-track">
+                        <div class="dist-bar-fill" style="width: {{ pct }}%; background: {% if cat_name == 'Wet Waste' %}#28a745{% elif cat_name == 'Dry Waste' %}#007bff{% elif cat_name == 'Recyclable Waste' %}#ffc107{% else %}#dc3545{% endif %};"></div>
+                    </div>
+                </div>
+            {% endfor %}
+        </div>
+    {% else %}
+        <div style="text-align: center; padding: 24px; color: var(--text-muted);">
+            <em>No waste analyses yet. Category distribution will appear here once you scan items.</em>
+        </div>
+    {% endif %}
+</div>
+
+<!-- Recent Waste Analyses Section -->
+<div class="card">
+    <div class="card-header" style="display: flex; justify-content: space-between; align-items: center;">
+        <div>
+            <h2 style="margin: 0; font-size: 1.25rem;">Recent Waste Analyses</h2>
+            <p style="font-size: 0.85rem; color: var(--text-muted); margin: 0;">Last 5 classifications from your account</p>
+        </div>
+        {% if user_scans_count > 0 %}
+            <a href="{{ url_for('history') }}" style="color: var(--primary); font-size: 0.9rem; font-weight: 600; text-decoration: none;">View All History →</a>
+        {% endif %}
+    </div>
+
+    {% if user_scans_count == 0 %}
+        <div style="text-align: center; padding: 40px 20px;">
+            <div style="font-size: 2.5rem; margin-bottom: 10px;">📋</div>
+            <h3 style="color: var(--text-dark); margin-bottom: 6px;">No waste analyses yet.</h3>
+            <p style="color: var(--text-muted); max-width: 480px; margin: 0 auto 18px auto; font-size: 0.95rem;">
+                You haven't scanned any waste items yet. Upload a picture of packaging, food scraps, or electronics to get started.
+            </p>
+            <a href="{{ url_for('analyze') }}" class="btn btn-primary">Start First Analysis</a>
+        </div>
+    {% else %}
+        <div class="table-container">
+            <table>
+                <thead>
+                    <tr>
+                        <th>Thumbnail</th>
+                        <th>Date & Time</th>
+                        <th>Predicted Category</th>
+                        <th>Confidence</th>
+                        <th>Assigned Bin</th>
+                        <th>Action</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for scan in recent_scans %}
+                    <tr>
+                        <td>
+                            <img src="{{ url_for('static', filename='uploads/' + scan.image_filename) }}" class="scan-thumb" alt="Thumbnail" onerror="this.onerror=null; this.src='{{ url_for('static', filename='img/placeholder.png') }}';">
+                        </td>
+                        <td style="font-size: 0.88rem; color: var(--text-muted);">{{ scan.created_at }}</td>
+                        <td><strong>{{ scan.category_name }}</strong></td>
+                        <td>{{ scan.confidence_score }}%</td>
+                        <td>
+                            <span style="display: inline-block; width: 10px; height: 10px; border-radius: 50%; background: {{ scan.bin_color_code }}; margin-right: 4px;"></span>
+                            {{ scan.bin_name }}
+                        </td>
+                        <td>
+                            <a href="{{ url_for('prediction_detail', prediction_id=scan.id) }}" class="btn btn-secondary" style="padding: 4px 10px; font-size: 0.8rem;">
+                                View Details
+                            </a>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    {% endif %}
+</div>
+{% endblock %}

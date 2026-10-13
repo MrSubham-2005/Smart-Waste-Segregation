@@ -1,0 +1,41 @@
+{% extends "base.html" %}
+
+{% block title %}Register - EcoSort AI{% endblock %}
+
+{% block content %}
+<div class="card form-card">
+    <div class="card-header" style="text-align: center;">
+        <h2>Create an Account</h2>
+        <p style="color: var(--text-muted); font-size: 0.9rem;">Join EcoSort AI to track your waste segregation impact</p>
+    </div>
+
+    <form method="POST" action="{{ url_for('register') }}" novalidate>
+        <div class="form-group">
+            <label for="name">Full Name</label>
+            <input type="text" id="name" name="name" class="form-control" value="{{ request.form.get('name', '') }}" required placeholder="e.g. Subhajit Roy">
+        </div>
+
+        <div class="form-group">
+            <label for="email">Email Address</label>
+            <input type="email" id="email" name="email" class="form-control" value="{{ request.form.get('email', '') }}" required placeholder="e.g. user@example.com">
+        </div>
+
+        <div class="form-group">
+            <label for="password">Password</label>
+            <input type="password" id="password" name="password" class="form-control" required placeholder="Minimum 6 characters">
+            <div class="form-text">Must be at least 6 characters.</div>
+        </div>
+
+        <div class="form-group">
+            <label for="confirm_password">Confirm Password</label>
+            <input type="password" id="confirm_password" name="confirm_password" class="form-control" required placeholder="Re-enter your password">
+        </div>
+
+        <button type="submit" class="btn btn-primary btn-block" style="margin-top: 10px;">Register</button>
+    </form>
+
+    <div style="text-align: center; margin-top: 20px; font-size: 0.9rem; color: var(--text-muted);">
+        Already have an account? <a href="{{ url_for('login') }}" style="color: var(--primary); font-weight: 600;">Sign In</a>
+    </div>
+</div>
+{% endblock %}

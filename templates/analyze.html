@@ -1,0 +1,84 @@
+{% extends "base.html" %}
+
+{% block title %}Analyze Your Waste - EcoSort AI{% endblock %}
+
+{% block content %}
+<div class="card" style="margin-bottom: 24px;">
+    <div class="card-header" style="text-align: center; border-bottom: none; margin-bottom: 8px;">
+        <span style="background: var(--primary-light); color: var(--primary); padding: 4px 12px; border-radius: 20px; font-weight: 600; font-size: 0.8rem; display: inline-block; margin-bottom: 8px;">
+            AI Waste Classifier
+        </span>
+        <h1 style="font-size: 1.85rem; margin-bottom: 6px; color: var(--text-dark);">Analyze Your Waste</h1>
+        <p style="color: var(--text-muted); font-size: 1rem; max-width: 550px; margin: 0 auto;">
+            Upload a clear image of a waste item. EcoSort AI analyzes the item and recommends the correct disposal category.
+        </p>
+    </div>
+
+    <!-- 1. Drag and Drop Upload Area -->
+    <div id="upload-dropzone" class="upload-dropzone">
+        <div class="upload-icon">📸</div>
+        <div class="upload-title">Drag & drop your waste image here</div>
+        <div class="upload-subtitle">Supports JPG, JPEG, PNG, and WEBP (Max 5 MB)</div>
+        <button type="button" class="btn btn-primary" id="browse-btn">
+            Browse Files
+        </button>
+        <input type="file" id="waste-image-input" accept=".jpg,.jpeg,.png,.webp,image/jpeg,image/png,image/webp" style="display: none;">
+    </div>
+
+    <!-- 2. Image Preview Container (Client-Side) -->
+    <div id="preview-container" class="preview-container">
+        <div class="preview-card">
+            <div class="preview-image-wrapper">
+                <img id="preview-img" class="preview-img" alt="Selected Waste Item">
+            </div>
+
+            <div class="preview-meta">
+                <span class="meta-pill" id="preview-name">filename.jpg</span>
+                <span class="meta-pill" id="preview-size">0 KB</span>
+                <span class="meta-pill" id="preview-dimensions">Calculating...</span>
+            </div>
+
+            <div style="display: flex; gap: 12px; justify-content: center; flex-wrap: wrap;">
+                <button type="button" class="btn btn-secondary" id="reset-btn">Remove / Change Image</button>
+                <button type="button" class="btn btn-primary" id="analyze-btn">Analyze Waste</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 3. Loading State -->
+    <div id="loading-box" class="loading-box">
+        <div class="spinner"></div>
+        <h3 style="color: var(--text-dark); margin-bottom: 4px;">Analyzing your waste...</h3>
+        <p style="color: var(--text-muted); font-size: 0.9rem;">Running validation and preprocessing through the AI pipeline.</p>
+    </div>
+
+    <!-- 4. Dynamic Results Container -->
+    <div id="result-container" class="result-container"></div>
+</div>
+
+<!-- Category Reference Cards -->
+<div class="card">
+    <div class="card-header">
+        <h2 style="font-size: 1.15rem; margin-bottom: 4px;">Supported Waste Categories</h2>
+        <p style="font-size: 0.85rem; color: var(--text-muted); margin: 0;">Items are classified into the 4 standard streams:</p>
+    </div>
+    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 12px;">
+        {% for cat in categories %}
+        <div style="padding: 12px 14px; border-radius: 8px; border-left: 4px solid {{ cat.bin_color_code }}; background: #fafbfc; border: 1px solid var(--border); border-left-width: 4px;">
+            <strong style="color: {{ cat.bin_color_code }}; font-size: 0.95rem;">{{ cat.name }}</strong>
+            <div style="font-size: 0.8rem; color: var(--text-muted); margin-top: 2px;">{{ cat.bin_name }}</div>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_scripts %}
+<script>
+    window.ECOSORT_CONFIG = {
+        isLoggedIn: {{ 'true' if session.get('user_id') else 'false' }},
+        loginUrl: "{{ url_for('login', next=url_for('analyze')) }}"
+    };
+</script>
+<script src="{{ url_for('static', filename='js/analyzer.js') }}"></script>
+{% endblock %}

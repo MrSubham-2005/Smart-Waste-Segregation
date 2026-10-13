@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}EcoSort AI{% endblock %} - Smart Waste Segregation</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    {% block extra_head %}{% endblock %}
+</head>
+<body>
+
+    <!-- Main Navigation Bar -->
+    <nav class="navbar">
+        <a href="{{ url_for('home') }}" class="nav-brand">
+            🌱 EcoSort AI
+        </a>
+
+        <ul class="nav-links">
+            <li><a href="{{ url_for('home') }}" class="{% if request.endpoint == 'home' %}active{% endif %}">Home</a></li>
+            <li><a href="{{ url_for('analyze') }}" class="{% if request.endpoint == 'analyze' %}active{% endif %}">Analyze Waste</a></li>
+            <li><a href="{{ url_for('awareness') }}" class="{% if request.endpoint == 'awareness' %}active{% endif %}">Awareness</a></li>
+
+            {% if session.get('user_id') %}
+                <!-- Logged In Links -->
+                <li><a href="{{ url_for('dashboard') }}" class="{% if request.endpoint == 'dashboard' %}active{% endif %}">Dashboard</a></li>
+                <li><a href="{{ url_for('history') }}" class="{% if request.endpoint == 'history' %}active{% endif %}">History</a></li>
+
+                {% if session.get('role') == 'admin' %}
+                    <!-- Admin Link -->
+                    <li><a href="{{ url_for('admin') }}" class="{% if request.endpoint == 'admin' %}active{% endif %}">Admin Dashboard</a></li>
+                {% endif %}
+
+                <li>
+                    <span class="user-badge">
+                        👤 {{ session.get('name') }}
+                        <span class="badge-role {% if session.get('role') == 'admin' %}admin{% endif %}">
+                            {{ session.get('role') }}
+                        </span>
+                    </span>
+                </li>
+                <li><a href="{{ url_for('logout') }}" style="color: var(--danger-text);">Logout</a></li>
+            {% else %}
+                <!-- Logged Out Links -->
+                <li><a href="{{ url_for('login') }}" class="{% if request.endpoint == 'login' %}active{% endif %}">Login</a></li>
+                <li><a href="{{ url_for('register') }}" class="{% if request.endpoint == 'register' %}active{% endif %}">Register</a></li>
+            {% endif %}
+        </ul>
+    </nav>
+
+    <!-- Main Content Container -->
+    <main class="container">
+        <!-- Flash Message Alerts -->
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                <div class="flash-container">
+                    {% for category, message in messages %}
+                        <div class="alert alert-{{ category }}">
+                            <span>{{ message }}</span>
+                        </div>
+                    {% endfor %}
+                </div>
+            {% endif %}
+        {% endwith %}
+
+        {% block content %}{% endblock %}
+    </main>
+
+    <!-- Footer -->
+    <footer>
+        <p>EcoSort AI • Smart Waste Segregation System</p>
+    </footer>
+
+    {% block extra_scripts %}{% endblock %}
+</body>
+</html>

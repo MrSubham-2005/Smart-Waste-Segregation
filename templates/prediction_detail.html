@@ -1,0 +1,133 @@
+{% extends "base.html" %}
+
+{% block title %}Prediction #{{ prediction.id }} - EcoSort AI{% endblock %}
+
+{% block content %}
+<div class="card" style="margin-bottom: 16px;">
+    <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px;">
+        <div>
+            <span style="font-size: 0.85rem; color: var(--text-muted);">
+                <a href="{{ url_for('history') }}" style="color: var(--primary); text-decoration: none;">← Back to History</a>
+            </span>
+            <h1 style="font-size: 1.7rem; margin: 4px 0 0 0; color: var(--text-dark);">
+                Waste Analysis #{{ prediction.id }}
+            </h1>
+        </div>
+        <div>
+            <span class="badge-role" style="background: #6b7280;">{{ prediction.model_version }}</span>
+        </div>
+    </div>
+</div>
+
+<div class="card">
+    <div class="detail-grid">
+        <!-- Original Image Box -->
+        <div class="detail-image-box">
+            <img src="{{ url_for('static', filename='uploads/' + prediction.image_filename) }}" alt="Scanned Waste Item" onerror="this.onerror=null; this.src='{{ url_for('static', filename='img/placeholder.png') }}';">
+            <div style="padding: 10px; font-size: 0.8rem; color: var(--text-muted);">
+                Scanned Image • {{ prediction.created_at }}
+            </div>
+        </div>
+
+        <!-- Classification & Guidance Details -->
+        <div>
+            <span class="category-tag badge-{{ prediction.category_name|lower|replace(' ', '')|replace('-', '') }}">
+                {{ prediction.category_name }}
+            </span>
+            <h2 style="margin: 0 0 8px 0; font-size: 1.6rem;">{{ prediction.category_name }}</h2>
+
+            <!-- Confidence Meter -->
+            <div style="display: flex; justify-content: space-between; font-size: 0.9rem; font-weight: 600; margin-top: 12px;">
+                <span>AI Confidence Score</span>
+                <span style="color: var(--primary);">{{ prediction.confidence_score }}%</span>
+            </div>
+            <div class="confidence-meter">
+                <div class="confidence-fill" style="width: {{ prediction.confidence_score }}%;"></div>
+            </div>
+
+            <!-- Disposal Guidance Box -->
+            <div class="guidance-box">
+                <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 6px;">
+                    <span style="display: inline-block; width: 14px; height: 14px; border-radius: 50%; background: {{ prediction.bin_color_code }};"></span>
+                    <strong>Recommended Disposal Bin:</strong> {{ prediction.bin_name }}
+                </div>
+                <p style="margin: 0; font-size: 0.92rem; color: #374151;">
+                    {{ prediction.disposal_instructions }}
+                </p>
+            </div>
+
+            <!-- Category Description -->
+            <div style="background: #f9fafb; border: 1px solid var(--border); border-radius: 8px; padding: 14px; margin: 14px 0; font-size: 0.9rem; color: #4b5563;">
+                <strong>Category Profile:</strong> {{ prediction.description }}
+                {% if prediction.examples %}
+                <div style="margin-top: 6px; font-size: 0.85rem; color: #6b7280;">
+                    <strong>Common items:</strong> {{ prediction.examples }}
+                </div>
+                {% endif %}
+            </div>
+
+            <!-- Feedback Section -->
+            <div class="feedback-box">
+                <h3 style="font-size: 1.1rem; margin: 0 0 8px 0; color: var(--text-dark);">
+                    Classification Feedback
+                </h3>
+                <p style="font-size: 0.88rem; color: var(--text-muted); margin: 0 0 12px 0;">
+                    Help verify model performance under real-world usage conditions:
+                </p>
+
+                {% if existing_feedback %}
+                    <div style="background: #ffffff; border: 1px solid var(--border); border-radius: 8px; padding: 14px; margin-bottom: 12px;">
+                        <div style="display: flex; justify-content: space-between; align-items: center;">
+                            <strong>Your Recorded Feedback:</strong>
+                            <span class="badge-feedback {% if existing_feedback.feedback_type == 'confirm' %}badge-feedback-correct{% else %}badge-feedback-incorrect{% endif %}">
+                                {% if existing_feedback.feedback_type == 'confirm' %}Helpful (Correct){% else %}Needs Correction{% endif %}
+                            </span>
+                        </div>
+                        {% if existing_feedback.user_notes %}
+                        <p style="margin: 8px 0 0 0; font-size: 0.88rem; color: #4b5563;">
+                            <em>"{{ existing_feedback.user_notes }}"</em>
+                        </p>
+                        {% endif %}
+                        <div style="font-size: 0.75rem; color: #9ca3af; margin-top: 6px;">
+                            Submitted on {{ existing_feedback.created_at }}
+                        </div>
+                    </div>
+                {% endif %}
+
+                <!-- Feedback Form -->
+                <form method="POST" action="{{ url_for('submit_feedback', prediction_id=prediction.id) }}">
+                    <label style="display: block; font-weight: 600; font-size: 0.9rem; margin-bottom: 6px;">
+                        {% if existing_feedback %}Update your feedback:{% else %}Was this classification helpful?{% endif %}
+                    </label>
+                    <div class="feedback-options">
+                        <label class="feedback-option">
+                            <input type="radio" name="helpful" value="yes" {% if existing_feedback and existing_feedback.feedback_type == 'confirm' %}checked{% endif %} required>
+                            <span>👍 Yes, helpful</span>
+                        </label>
+                        <label class="feedback-option">
+                            <input type="radio" name="helpful" value="no" {% if existing_feedback and existing_feedback.feedback_type == 'correction' %}checked{% endif %} required>
+                            <span>👎 No, needs improvement</span>
+                        </label>
+                    </div>
+
+                    <div class="form-group" style="margin-bottom: 14px;">
+                        <label for="comment" style="font-size: 0.85rem; color: var(--text-muted);">Optional comment or correction note:</label>
+                        <textarea id="comment" name="comment" class="form-control" rows="2" placeholder="e.g. Item was actually an aluminum foil wrapper...">{{ existing_feedback.user_notes if existing_feedback else '' }}</textarea>
+                    </div>
+
+                    <button type="submit" class="btn btn-primary" style="font-size: 0.9rem; padding: 8px 18px;">
+                        {% if existing_feedback %}Update Feedback{% else %}Submit Feedback{% endif %}
+                    </button>
+                </form>
+            </div>
+
+            <!-- Navigation Buttons -->
+            <div style="display: flex; gap: 12px; margin-top: 20px; flex-wrap: wrap;">
+                <a href="{{ url_for('analyze') }}" class="btn btn-primary">Analyze Another Item</a>
+                <a href="{{ url_for('history') }}" class="btn btn-secondary">All Scans</a>
+                <a href="{{ url_for('dashboard') }}" class="btn btn-secondary">Dashboard</a>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

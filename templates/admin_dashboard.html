@@ -1,0 +1,210 @@
+{% extends "base.html" %}
+
+{% block title %}Admin Dashboard - EcoSort AI{% endblock %}
+
+{% block content %}
+<div class="card">
+    <div class="card-header">
+        <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px;">
+            <div>
+                <h1 style="font-size: 1.7rem; margin: 0 0 4px 0; color: var(--text-dark);">
+                    Administrator Control Panel
+                </h1>
+                <p style="color: var(--text-muted); font-size: 0.95rem; margin: 0;">
+                    Platform management and real data auditing for <strong>{{ session.get('name') }}</strong>
+                </p>
+            </div>
+            <span style="background: #fee2e2; color: #dc2626; padding: 4px 12px; border-radius: 20px; font-weight: 700; font-size: 0.8rem; text-transform: uppercase;">
+                Admin Privileges
+            </span>
+        </div>
+    </div>
+
+    <!-- Platform KPI Metrics (Real Data Only) -->
+    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 16px; margin-bottom: 24px;">
+        <div class="card" style="margin-bottom: 0; text-align: center; border-top: 4px solid var(--primary);">
+            <div style="font-size: 0.8rem; color: var(--text-muted); text-transform: uppercase; font-weight: 600;">Total Users</div>
+            <div style="font-size: 2rem; font-weight: 700; color: var(--text-dark); margin: 4px 0;">{{ users|length }}</div>
+            <div style="font-size: 0.75rem; color: var(--text-muted);">Registered Accounts</div>
+        </div>
+
+        <div class="card" style="margin-bottom: 0; text-align: center; border-top: 4px solid #3b82f6;">
+            <div style="font-size: 0.8rem; color: var(--text-muted); text-transform: uppercase; font-weight: 600;">Total Analyses</div>
+            <div style="font-size: 2rem; font-weight: 700; color: #3b82f6; margin: 4px 0;">{{ total_predictions }}</div>
+            <div style="font-size: 0.75rem; color: var(--text-muted);">Platform Classifications</div>
+        </div>
+
+        <div class="card" style="margin-bottom: 0; text-align: center; border-top: 4px solid #10b981;">
+            <div style="font-size: 0.8rem; color: var(--text-muted); text-transform: uppercase; font-weight: 600;">Feedback Logged</div>
+            <div style="font-size: 2rem; font-weight: 700; color: #10b981; margin: 4px 0;">{{ total_feedback }}</div>
+            <div style="font-size: 0.75rem; color: var(--text-muted);">User Reviews</div>
+        </div>
+
+        <div class="card" style="margin-bottom: 0; text-align: center; border-top: 4px solid #10b981;">
+            <div style="font-size: 0.8rem; color: var(--text-muted); text-transform: uppercase; font-weight: 600;">AI Engine State</div>
+            {% if model_info and model_info.is_trained %}
+                <div style="font-size: 1.1rem; font-weight: 700; color: #16a34a; margin: 10px 0 4px 0;">MobileNetV2 Active</div>
+                <div style="font-size: 0.75rem; color: var(--text-muted);">Trained & Ready</div>
+            {% else %}
+                <div style="font-size: 1.1rem; font-weight: 700; color: #b45309; margin: 10px 0 4px 0;">Untrained</div>
+                <div style="font-size: 0.75rem; color: var(--text-muted);">Model Not Found</div>
+            {% endif %}
+        </div>
+    </div>
+
+    <!-- Platform Category Distribution -->
+    <div class="card" style="margin-bottom: 24px;">
+        <div class="card-header">
+            <h2 style="font-size: 1.2rem; margin: 0 0 4px 0;">Platform-Wide Waste Category Distribution</h2>
+            <p style="font-size: 0.85rem; color: var(--text-muted); margin: 0;">Aggregate distribution calculated strictly from the predictions table</p>
+        </div>
+
+        {% if total_predictions > 0 %}
+            <div style="margin-top: 14px;">
+                {% for cat in category_stats %}
+                    {% set pct = ((cat.count / total_predictions) * 100)|round(1) if total_predictions > 0 else 0 %}
+                    <div class="dist-bar-wrapper">
+                        <div class="dist-bar-header">
+                            <span>{{ cat.category_name }}</span>
+                            <span>{{ cat.count }} items ({{ pct }}%)</span>
+                        </div>
+                        <div class="dist-bar-track">
+                            <div class="dist-bar-fill" style="width: {{ pct }}%; background: {{ cat.bin_color_code }};"></div>
+                        </div>
+                    </div>
+                {% endfor %}
+            </div>
+        {% else %}
+            <div style="text-align: center; padding: 24px; color: var(--text-muted);">
+                <em>No platform predictions logged yet. Distribution will render once analyses occur.</em>
+            </div>
+        {% endif %}
+    </div>
+
+    <!-- Recent Platform Predictions -->
+    <div class="card" style="margin-bottom: 24px;">
+        <div class="card-header">
+            <h2 style="font-size: 1.2rem; margin: 0 0 4px 0;">Recent Platform Classifications</h2>
+            <p style="font-size: 0.85rem; color: var(--text-muted); margin: 0;">Real-time feed of waste analyses across all users</p>
+        </div>
+
+        {% if recent_predictions and recent_predictions|length > 0 %}
+            <div class="table-container">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Image</th>
+                            <th>User</th>
+                            <th>Category</th>
+                            <th>Confidence</th>
+                            <th>Bin</th>
+                            <th>Date & Time</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for p in recent_predictions %}
+                        <tr>
+                            <td>
+                                <img src="{{ url_for('static', filename='uploads/' + p.image_filename) }}" class="scan-thumb" alt="Thumb" onerror="this.onerror=null; this.src='{{ url_for('static', filename='img/placeholder.png') }}';">
+                            </td>
+                            <td>{{ p.user_name if p.user_name else 'Guest' }}</td>
+                            <td><strong>{{ p.category_name }}</strong></td>
+                            <td>{{ p.confidence_score }}%</td>
+                            <td>
+                                <span style="display: inline-block; width: 10px; height: 10px; border-radius: 50%; background: {{ p.bin_color_code }}; margin-right: 4px;"></span>
+                                {{ p.bin_name }}
+                            </td>
+                            <td style="font-size: 0.85rem; color: var(--text-muted);">{{ p.created_at }}</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        {% else %}
+            <div style="text-align: center; padding: 24px; color: var(--text-muted);">
+                <em>No predictions recorded in database yet.</em>
+            </div>
+        {% endif %}
+    </div>
+
+    <!-- Recent User Feedback Log -->
+    <div class="card" style="margin-bottom: 24px;">
+        <div class="card-header">
+            <h2 style="font-size: 1.2rem; margin: 0 0 4px 0;">Recent Classification Feedback</h2>
+            <p style="font-size: 0.85rem; color: var(--text-muted); margin: 0;">Human-in-the-loop audit logs for future model evaluation</p>
+        </div>
+
+        {% if recent_feedback and recent_feedback|length > 0 %}
+            <div class="table-container">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Pred #</th>
+                            <th>User</th>
+                            <th>Category</th>
+                            <th>Feedback</th>
+                            <th>User Comment</th>
+                            <th>Date</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for fb in recent_feedback %}
+                        <tr>
+                            <td>#{{ fb.prediction_id }}</td>
+                            <td>{{ fb.user_name if fb.user_name else 'Anonymous' }}</td>
+                            <td>{{ fb.category_name }}</td>
+                            <td>
+                                <span class="badge-feedback {% if fb.feedback_type == 'confirm' %}badge-feedback-correct{% else %}badge-feedback-incorrect{% endif %}">
+                                    {% if fb.feedback_type == 'confirm' %}Helpful{% else %}Correction{% endif %}
+                                </span>
+                            </td>
+                            <td style="font-size: 0.88rem; color: #4b5563;">{{ fb.user_notes if fb.user_notes else '—' }}</td>
+                            <td style="font-size: 0.85rem; color: var(--text-muted);">{{ fb.created_at }}</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        {% else %}
+            <div style="text-align: center; padding: 24px; color: var(--text-muted);">
+                <em>No user feedback submitted yet.</em>
+            </div>
+        {% endif %}
+    </div>
+
+    <!-- Registered User Accounts -->
+    <div class="card" style="margin-bottom: 0;">
+        <div class="card-header">
+            <h2 style="font-size: 1.2rem; margin: 0 0 4px 0;">Registered Accounts (MySQL <code>users</code> Table)</h2>
+        </div>
+        <div class="table-container">
+            <table>
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Name</th>
+                        <th>Email</th>
+                        <th>Role</th>
+                        <th>Registered At</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for u in users %}
+                    <tr>
+                        <td>#{{ u.id }}</td>
+                        <td><strong>{{ u.name }}</strong></td>
+                        <td>{{ u.email }}</td>
+                        <td>
+                            <span class="badge-role {% if u.role == 'admin' %}admin{% endif %}">
+                                {{ u.role }}
+                            </span>
+                        </td>
+                        <td style="font-size: 0.85rem; color: var(--text-muted);">{{ u.created_at }}</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% endblock %}

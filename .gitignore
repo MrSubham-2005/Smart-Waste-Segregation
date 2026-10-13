@@ -1,0 +1,40 @@
+# Byte-compiled / optimized / DLL files
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+
+# Environments
+.env
+venv/
+env/
+ENV/
+env.bak/
+venv.bak/
+
+# Uploaded User Waste Images (keep the folder, ignore uploaded images)
+static/uploads/*
+!static/uploads/.gitkeep
+
+# AI / ML Model Weights (Trained artifacts should be versioned separately)
+ai_engine/models/*.keras
+ai_engine/models/*.h5
+ai_engine/models/*.tflite
+!ai_engine/models/.gitkeep
+
+# Dataset images (keep directory structure, ignore actual training images)
+dataset/train/*/*
+dataset/val/*/*
+dataset/test/*/*
+!dataset/**/.gitkeep
+
+# Temporary / OS files
+.DS_Store
+Thumbs.db
+*.log
+
+# IDE Configurations
+.vscode/
+.idea/
+*.sublime-project
+*.sublime-workspace

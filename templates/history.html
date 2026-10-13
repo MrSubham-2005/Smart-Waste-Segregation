@@ -1,0 +1,110 @@
+{% extends "base.html" %}
+
+{% block title %}Prediction History - EcoSort AI{% endblock %}
+
+{% block content %}
+<div class="card">
+    <div class="card-header" style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px;">
+        <div>
+            <h1 style="font-size: 1.6rem; margin: 0 0 4px 0; color: var(--text-dark);">Waste Prediction History</h1>
+            <p style="color: var(--text-muted); font-size: 0.95rem; margin: 0;">
+                Personal log of waste items scanned by <strong>{{ session.get('name') }}</strong> (Total: {{ total_scans }})
+            </p>
+        </div>
+        <div>
+            <a href="{{ url_for('analyze') }}" class="btn btn-primary">🔍 New Analysis</a>
+        </div>
+    </div>
+
+    {% if scans and scans|length > 0 %}
+        <div class="table-container">
+            <table>
+                <thead>
+                    <tr>
+                        <th>Image</th>
+                        <th>Date & Time</th>
+                        <th>Waste Category</th>
+                        <th>Confidence</th>
+                        <th>Assigned Bin</th>
+                        <th>Feedback</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for scan in scans %}
+                    <tr>
+                        <td>
+                            <a href="{{ url_for('prediction_detail', prediction_id=scan.id) }}">
+                                <img src="{{ url_for('static', filename='uploads/' + scan.image_filename) }}" class="scan-thumb" alt="Thumbnail" onerror="this.onerror=null; this.src='{{ url_for('static', filename='img/placeholder.png') }}';">
+                            </a>
+                        </td>
+                        <td style="font-size: 0.88rem; color: var(--text-muted);">
+                            {{ scan.created_at }}
+                        </td>
+                        <td>
+                            <span class="category-tag badge-{{ scan.category_name|lower|replace(' ', '')|replace('-', '') }}" style="font-size: 0.8rem; padding: 3px 10px; margin-bottom: 0;">
+                                {{ scan.category_name }}
+                            </span>
+                        </td>
+                        <td>
+                            <strong style="color: var(--primary);">{{ scan.confidence_score }}%</strong>
+                        </td>
+                        <td>
+                            <span style="display: inline-block; width: 10px; height: 10px; border-radius: 50%; background: {{ scan.bin_color_code }}; margin-right: 4px;"></span>
+                            <span style="font-size: 0.88rem;">{{ scan.bin_name }}</span>
+                        </td>
+                        <td>
+                            <span class="badge-feedback badge-feedback-{{ scan.user_feedback }}">
+                                {% if scan.user_feedback == 'correct' %}Helpful
+                                {% elif scan.user_feedback == 'incorrect' %}Unhelpful
+                                {% else %}Pending{% endif %}
+                            </span>
+                        </td>
+                        <td>
+                            <a href="{{ url_for('prediction_detail', prediction_id=scan.id) }}" class="btn btn-secondary" style="padding: 4px 10px; font-size: 0.8rem;">
+                                View Details
+                            </a>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+
+        <!-- Pagination Controls -->
+        {% if total_pages > 1 %}
+        <ul class="pagination">
+            {% if page > 1 %}
+                <li><a href="{{ url_for('history', page=page-1) }}" class="page-link">« Previous</a></li>
+            {% else %}
+                <li><span class="page-link disabled">« Previous</span></li>
+            {% endif %}
+
+            {% for p in range(1, total_pages + 1) %}
+                <li>
+                    <a href="{{ url_for('history', page=p) }}" class="page-link {% if p == page %}active{% endif %}">
+                        {{ p }}
+                    </a>
+                </li>
+            {% endfor %}
+
+            {% if page < total_pages %}
+                <li><a href="{{ url_for('history', page=page+1) }}" class="page-link">Next »</a></li>
+            {% else %}
+                <li><span class="page-link disabled">Next »</span></li>
+            {% endif %}
+        </ul>
+        {% endif %}
+
+    {% else %}
+        <div style="text-align: center; padding: 48px 20px;">
+            <div style="font-size: 3rem; margin-bottom: 12px;">🗑️</div>
+            <h3 style="color: var(--text-dark); margin-bottom: 6px;">No waste analyses yet.</h3>
+            <p style="color: var(--text-muted); max-width: 480px; margin: 0 auto 20px auto; font-size: 0.95rem;">
+                When you classify waste items using the EcoSort AI analyzer, your history, confidence scores, and disposal guidance will appear here.
+            </p>
+            <a href="{{ url_for('analyze') }}" class="btn btn-primary">Analyze an Item Now</a>
+        </div>
+    {% endif %}
+</div>
+{% endblock %}

@@ -1,0 +1,95 @@
+{% extends "base.html" %}
+
+{% block title %}Waste Segregation Awareness - EcoSort AI{% endblock %}
+
+{% block content %}
+<div class="card" style="text-align: center; padding: 36px 20px;">
+    <span style="background: var(--primary-light); color: var(--primary); padding: 4px 12px; border-radius: 20px; font-weight: 600; font-size: 0.8rem; display: inline-block; margin-bottom: 10px;">
+        Environmental Education
+    </span>
+    <h1 style="font-size: 2rem; margin-bottom: 8px; color: var(--text-dark);">Understanding Waste Segregation</h1>
+    <p style="font-size: 1.05rem; color: var(--text-muted); max-width: 650px; margin: 0 auto 20px auto;">
+        Learn why source segregation matters and how sorting waste correctly keeps resources in the circular economy and out of landfills.
+    </p>
+    <div>
+        <a href="{{ url_for('analyze') }}" class="btn btn-primary">Try Waste Classifier</a>
+    </div>
+</div>
+
+<div class="card">
+    <div class="card-header">
+        <h2>What is Waste Segregation and Why is it Important?</h2>
+    </div>
+    <div style="font-size: 0.95rem; color: #374151; line-height: 1.7;">
+        <p style="margin-bottom: 12px;">
+            <strong>Waste segregation</strong> is the practice of dividing solid waste into distinct categories at the point of generation (households, schools, offices) before collection and disposal.
+        </p>
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 16px; margin: 20px 0;">
+            <div style="background: #f0fdf4; border: 1px solid #bbf7d0; padding: 16px; border-radius: 8px;">
+                <h4 style="color: #15803d; margin-bottom: 6px;">🌍 Reduces Landfill Burden</h4>
+                <p style="margin: 0; font-size: 0.88rem; color: #166534;">
+                    Over 80% of municipal solid waste can be composted or recycled when segregated, drastically minimizing landfill space and toxic leachate.
+                </p>
+            </div>
+            <div style="background: #eff6ff; border: 1px solid #bfdbfe; padding: 16px; border-radius: 8px;">
+                <h4 style="color: #1d4ed8; margin-bottom: 6px;">🔄 Powers Circular Economy</h4>
+                <p style="margin: 0; font-size: 0.88rem; color: #1e40af;">
+                    Clean, uncontaminated recyclables (metals, plastics, glass) are returned directly to manufacturers, saving raw materials and energy.
+                </p>
+            </div>
+            <div style="background: #fef2f2; border: 1px solid #fecaca; padding: 16px; border-radius: 8px;">
+                <h4 style="color: #b91c1c; margin-bottom: 6px;">🛡️ Protects Sanitation Workers</h4>
+                <p style="margin: 0; font-size: 0.88rem; color: #991b1b;">
+                    Segregating hazardous items (broken glass, needles, e-waste) prevents serious occupational injuries for waste handlers and informal recyclers.
+                </p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="card">
+    <div class="card-header">
+        <h2>The 4 Core Waste Streams</h2>
+        <p style="font-size: 0.85rem; color: var(--text-muted); margin: 0;">
+            Note: While standard international/national recommendations specify distinct colors, municipal bin assignments may vary slightly by local government bylaws.
+        </p>
+    </div>
+
+    <div style="display: flex; flex-direction: column; gap: 20px;">
+        {% for cat in categories %}
+        <div style="border: 1px solid var(--border); border-left: 6px solid {{ cat.bin_color_code }}; border-radius: 8px; padding: 18px; background: #ffffff;">
+            <div style="display: flex; justify-content: space-between; align-items: baseline; flex-wrap: wrap; margin-bottom: 8px;">
+                <h3 style="color: {{ cat.bin_color_code }}; margin: 0; font-size: 1.25rem;">
+                    {{ loop.index }}. {{ cat.name }}
+                </h3>
+                <span style="font-size: 0.85rem; font-weight: 600; color: #4b5563;">
+                    Standard Bin: {{ cat.bin_name }}
+                </span>
+            </div>
+
+            <p style="color: #374151; font-size: 0.95rem; margin-bottom: 10px;">
+                {{ cat.description }}
+            </p>
+
+            <div style="background: #f9fafb; padding: 12px 14px; border-radius: 6px; margin-bottom: 10px; font-size: 0.9rem;">
+                <strong>Common Examples:</strong>
+                <span style="color: #4b5563;">{{ cat.examples }}</span>
+            </div>
+
+            <div style="font-size: 0.9rem; color: #1f2937;">
+                <strong>Disposal Guideline:</strong>
+                <span style="color: #374151;">{{ cat.disposal_instructions }}</span>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+
+<div class="card" style="text-align: center;">
+    <h2>Ready to Test Your Waste Knowledge?</h2>
+    <p style="color: var(--text-muted); margin-bottom: 16px;">
+        Upload a photo of an item you want to discard and let EcoSort AI analyze it.
+    </p>
+    <a href="{{ url_for('analyze') }}" class="btn btn-primary">Go to Waste Analyzer</a>
+</div>
+{% endblock %}

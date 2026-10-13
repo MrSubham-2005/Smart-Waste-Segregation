@@ -1,0 +1,36 @@
+{
+  "class_to_index": {
+    "wet_waste": 0,
+    "dry_waste": 1,
+    "recyclable_waste": 2,
+    "e_waste": 3
+  },
+  "index_to_class": {
+    "0": "wet_waste",
+    "1": "dry_waste",
+    "2": "recyclable_waste",
+    "3": "e_waste"
+  },
+  "index_to_display": {
+    "0": "Wet Waste",
+    "1": "Dry Waste",
+    "2": "Recyclable Waste",
+    "3": "E-Waste"
+  },
+  "categories": [
+    "wet_waste",
+    "dry_waste",
+    "recyclable_waste",
+    "e_waste"
+  ],
+  "display_names": [
+    "Wet Waste",
+    "Dry Waste",
+    "Recyclable Waste",
+    "E-Waste"
+  ],
+  "target_size": [
+    224,
+    224
+  ]
+}
