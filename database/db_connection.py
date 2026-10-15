@@ -33,8 +33,24 @@ def get_db_connection(use_database=True):
         'charset': 'utf8mb4',
         'cursorclass': DictCursor,
         'autocommit': True,
-        'ssl_disabled': True
     }
+    # Enable certificate-verified SSL for remote MySQL (such as Aiven).
+    # Keep local XAMPP connections unchanged.
+    if Config.DB_HOST not in ('localhost', '127.0.0.1'):
+        import ssl
+
+        ca_path = os.path.join(Config.BASE_DIR, 'certs', 'ca.pem')
+        ssl_context = ssl.create_default_context(cafile=ca_path)
+        ssl_context.check_hostname = True
+        ssl_context.verify_mode = ssl.CERT_REQUIRED
+
+        # Preserve certificate and hostname verification while allowing
+        # certificate chains that fail Python's extra strict X.509 checks.
+        if hasattr(ssl, 'VERIFY_X509_STRICT'):
+            ssl_context.verify_flags &= ~ssl.VERIFY_X509_STRICT
+
+        params['ssl'] = ssl_context
+
     if use_database:
         params['database'] = Config.DB_NAME
 
